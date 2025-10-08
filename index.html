@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>StockAI</title>
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#22c55e">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <style>
+    :root { --bg:#0B0F14; --accent:#22c55e; --muted:#9ca3af; --txt:#e5e7eb; }
+    html,body { height:100%; margin:0; background:var(--bg); color:var(--txt);
+      font-family: system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif; }
+    #app { height:100%; display:flex; flex-direction:column; }
+    header { display:flex; align-items:center; gap:10px; padding:12px; border-bottom:1px solid #1f2937; }
+    header h1 { font-size:16px; margin:0; font-weight:800; letter-spacing:.2px; }
+    #setup { padding:18px; max-width:640px; margin: 0 auto; }
+    label { font-weight:700; font-size:14px; display:block; margin-bottom:6px; }
+    input[type=text] { width:100%; padding:12px; font-size:16px; border-radius:10px; border:1px solid #334155; background:#0F141A; color:var(--txt); }
+    button { margin-top:10px; padding:12px 14px; font-size:16px; font-weight:800;
+             border:0; border-radius:10px; background:linear-gradient(180deg, var(--accent), #109c46); color:#fff; }
+    .hint { color: var(--muted); font-size:13px; margin-top:8px; }
+    .gear { margin-left:auto; font-size:12px; color:var(--muted); cursor:pointer; }
+    #frame { flex:1; border:0; width:100%; }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <header>
+      <h1>StockAI</h1>
+      <div class="gear" id="gear">Change Space</div>
+    </header>
+
+    <div id="setup" style="display:none;">
+      <label>Paste your Hugging Face Space URL</label>
+      <input id="spaceUrl" type="text" placeholder="https://huggingface.co/spaces/yourname/StocksAI">
+      <button id="saveBtn">Save</button>
+      <div class="hint">Tip: You can always change this later via “Change Space”.<br>
+      The app loads your Space full-screen and is installable as a PWA.</div>
+    </div>
+
+    <iframe id="frame" allow="clipboard-read; clipboard-write"></iframe>
+  </div>
+
+  <script>
+    const frame = document.getElementById('frame');
+    const setup = document.getElementById('setup');
+    const gear = document.getElementById('gear');
+    const input = document.getElementById('spaceUrl');
+    const saveBtn = document.getElementById('saveBtn');
+
+    function normalize(url) {
+      if (!url) return null;
+      url = url.trim();
+      if (!/^https?:\\/\\//i.test(url)) url = 'https://' + url;
+      if (!/\\?/.test(url)) url += '?__theme=dark';
+      else if (!/__theme=dark/.test(url)) url += '&__theme=dark';
+      return url;
+    }
+
+    function load() {
+      const saved = localStorage.getItem('spaceUrl');
+      if (!saved) {
+        setup.style.display = 'block';
+        frame.style.display = 'none';
+      } else {
+        frame.src = saved;
+        setup.style.display = 'none';
+        frame.style.display = 'block';
+      }
+    }
+
+    gear.addEventListener('click', () => {
+      setup.style.display = 'block';
+      frame.style.display = 'none';
+      input.value = localStorage.getItem('spaceUrl') || '';
+    });
+
+    saveBtn.addEventListener('click', () => {
+      const value = normalize(input.value);
+      if (value && value.includes('huggingface.co/spaces/')) {
+        localStorage.setItem('spaceUrl', value);
+        load();
+      } else {
+        alert('Please paste a valid Hugging Face Space URL.');
+      }
+    });
+
+    load();
+  </script>
+</body>
+</html>
