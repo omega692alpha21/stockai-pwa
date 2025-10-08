@@ -1,0 +1,263 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+  <title>StocksAI</title>
+  <meta name="description" content="Buffett-grade valuations with a best-in-class iOS web experience." />
+  <meta name="theme-color" content="#0A0E13" />
+
+  <!-- iOS PWA -->
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="StocksAI" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png?v=9" />
+
+  <!-- Manifest / Icons -->
+  <link rel="manifest" href="/manifest.json" />
+  <link rel="icon" type="image/png" sizes="512x512" href="/icon-512x512.png?v=9" />
+
+  <style>
+    :root{
+      --bg:#0A0E13; --bg2:#0D1218; --panel:#0F151C; --glass:#0F151Ceb;
+      --txt:#E8ECEE; --muted:#9DA8AE; --stroke:#1E262D;
+      --accent:#00E091; --accent2:#C9A858;
+      --safe-top: env(safe-area-inset-top); --safe-bottom: env(safe-area-inset-bottom);
+    }
+    *{ box-sizing:border-box; max-width:100vw !important; }
+    html,body{
+      margin:0; padding:0; width:100vw; height:100%;
+      background:var(--bg); color:var(--txt);
+      overflow-x:hidden; -webkit-text-size-adjust:100%;
+      font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",Inter,system-ui,Segoe UI,Roboto,Arial,sans-serif;
+    }
+    #app{ min-height:100%; display:flex; flex-direction:column; }
+
+    /* Header */
+    header{
+      position:sticky; top:0; z-index:10;
+      padding: calc(8px + var(--safe-top)) 16px 10px;
+      background:linear-gradient(180deg,#0A0E13 0%,rgba(10,14,19,.75) 100%);
+      border-bottom:1px solid var(--stroke);
+      backdrop-filter:saturate(160%) blur(8px);
+    }
+    .brand{
+      display:flex; align-items:center; gap:12px; justify-content:center;
+    }
+    .logo{
+      width:34px; height:34px; border-radius:10px;
+      background:conic-gradient(from 120deg,#00E091,#14D9BA,#00E091);
+      display:grid; place-items:center; color:#00160E; font-weight:900; font-size:18px;
+      box-shadow:0 6px 22px rgba(0,224,145,.25);
+    }
+    .title{ margin:0; font-weight:800; letter-spacing:.2px; font-size:16px; }
+
+    /* Content container holds tab panels */
+    .content{ flex:1; position:relative; }
+
+    /* Panels (one visible at a time) */
+    .panel{
+      position:absolute; inset:0;
+      display:flex; flex-direction:column;
+      opacity:0; pointer-events:none; transform:translateX(8px);
+      transition: opacity .18s ease, transform .18s ease;
+    }
+    .panel.active{ opacity:1; pointer-events:auto; transform:translateX(0); }
+
+    /* Iframe content */
+    iframe.app{
+      width:100% !important; max-width:100% !important; height:100%;
+      border:0; background:var(--bg2); opacity:0; transition:opacity .25s ease;
+    }
+
+    /* Glass splash */
+    .splash{
+      position:absolute; inset:0; display:grid; place-items:center; z-index:1;
+      background:
+        radial-gradient(1200px 1200px at 50% -200px, rgba(0,224,145,.10), transparent 60%),
+        linear-gradient(180deg,#0A0E13 0%, #0A0E13 60%);
+    }
+    .card{
+      width:min(92vw,520px); padding:22px; border-radius:18px;
+      border:1px solid var(--stroke); background:var(--glass);
+      box-shadow:0 10px 40px rgba(0,0,0,.35); text-align:center;
+    }
+    .spin{ width:44px; height:44px; border-radius:50%;
+      border:4px solid #1E262D; border-top-color:var(--accent);
+      animation:spin 1s linear infinite; margin:16px auto 8px;
+    }
+    .muted{ color:var(--muted); font-size:13px; }
+    @keyframes spin{ to{ transform:rotate(360deg); } }
+
+    /* Tab bar */
+    nav.tabs{
+      position:sticky; bottom:0; z-index:10;
+      padding: 8px 12px calc(8px + var(--safe-bottom));
+      background:linear-gradient(180deg, rgba(10,14,19,.10) 0%, #0A0E13 80%);
+      border-top:1px solid var(--stroke);
+      display:flex; gap:10px; justify-content:space-between;
+      backdrop-filter:saturate(160%) blur(8px);
+    }
+    .tab{
+      flex:1; display:flex; flex-direction:column; align-items:center; gap:6px;
+      padding:10px 8px; border-radius:14px; color:var(--muted); text-decoration:none;
+      transition:background .15s ease, color .15s ease, transform .05s ease;
+    }
+    .tab.active{ background:#0E151C; color:var(--txt); border:1px solid var(--stroke); }
+    .tab:active{ transform:scale(.98); }
+    .tab i{ width:18px; height:18px; display:inline-block; border-radius:4px; background:var(--txt); opacity:.9; }
+
+    /* Helpers */
+    .hidden{ display:none !important; }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <header>
+      <div class="brand">
+        <div class="logo">S</div>
+        <h1 class="title">StocksAI</h1>
+      </div>
+    </header>
+
+    <div class="content">
+      <!-- HOME (optional marketing splash / could be a static hero) -->
+      <section id="panel-home" class="panel active">
+        <div class="splash" id="splash-home">
+          <div class="card">
+            <div class="logo" aria-hidden="true">S</div>
+            <div class="spin"></div>
+            <div class="muted">Preparing your market cockpit…</div>
+          </div>
+        </div>
+        <iframe
+          id="frame-home"
+          class="app"
+          title="StocksAI — Home"
+          src="about:blank"
+          allow="clipboard-read; clipboard-write">
+        </iframe>
+      </section>
+
+      <!-- ANALYZE (your HF analyze tab) -->
+      <section id="panel-analyze" class="panel">
+        <div class="splash" id="splash-analyze">
+          <div class="card">
+            <div class="logo" aria-hidden="true">S</div>
+            <div class="spin"></div>
+            <div class="muted">Launching Analyze…</div>
+          </div>
+        </div>
+        <iframe
+          id="frame-analyze"
+          class="app"
+          title="StocksAI — Analyze"
+          src="about:blank"
+          allow="clipboard-read; clipboard-write">
+        </iframe>
+      </section>
+
+      <!-- VALUE (your HF value tab) -->
+      <section id="panel-value" class="panel">
+        <div class="splash" id="splash-value">
+          <div class="card">
+            <div class="logo" aria-hidden="true">S</div>
+            <div class="spin"></div>
+            <div class="muted">Loading Value Picks…</div>
+          </div>
+        </div>
+        <iframe
+          id="frame-value"
+          class="app"
+          title="StocksAI — Value Picks"
+          src="about:blank"
+          allow="clipboard-read; clipboard-write">
+        </iframe>
+      </section>
+    </div>
+
+    <nav class="tabs" role="tablist" aria-label="StocksAI Tabs">
+      <a class="tab active" data-tab="home" role="tab" aria-selected="true">
+        <i aria-hidden="true"></i><span>Home</span>
+      </a>
+      <a class="tab" data-tab="analyze" role="tab" aria-selected="false">
+        <i aria-hidden="true"></i><span>Analyze</span>
+      </a>
+      <a class="tab" data-tab="value" role="tab" aria-selected="false">
+        <i aria-hidden="true"></i><span>Value</span>
+      </a>
+    </nav>
+  </div>
+
+  <script>
+    // ===== Config: point to your live HF Space (we reuse same app, different hashes if needed)
+    const SPACE_URL = "https://mkultrasm-stocksai.hf.space/";
+
+    // Optional: if you later expose tab-specific hashes, put them here:
+    const ROUTES = {
+      home: "",            // could be "#home" route inside HF later
+      analyze: "",         // could be "#analyze"
+      value: ""            // could be "#value"
+    };
+
+    const panels = {
+      home: document.getElementById('panel-home'),
+      analyze: document.getElementById('panel-analyze'),
+      value: document.getElementById('panel-value'),
+    };
+    const frames = {
+      home: document.getElementById('frame-home'),
+      analyze: document.getElementById('frame-analyze'),
+      value: document.getElementById('frame-value'),
+    };
+    const splashes = {
+      home: document.getElementById('splash-home'),
+      analyze: document.getElementById('splash-analyze'),
+      value: document.getElementById('splash-value'),
+    };
+
+    // Lock to portrait when available
+    if (screen.orientation && screen.orientation.lock) {
+      screen.orientation.lock('portrait').catch(()=>{});
+    }
+
+    // Tab switching
+    const tabEls = Array.from(document.querySelectorAll('.tab'));
+    let current = 'home';
+
+    function show(tab){
+      if (tab === current) return;
+      tabEls.forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
+      Object.keys(panels).forEach(k => panels[k].classList.toggle('active', k === tab));
+      current = tab;
+      lazyLoad(tab);
+    }
+
+    tabEls.forEach(t => t.addEventListener('click', () => show(t.dataset.tab)));
+
+    // Lazy load iframes when tab first shown
+    const loaded = { home:false, analyze:false, value:false };
+    function lazyLoad(tab){
+      if (loaded[tab]) return;
+      const url = SPACE_URL + (ROUTES[tab] || "");
+      frames[tab].src = url;
+      frames[tab].addEventListener('load', () => {
+        frames[tab].style.opacity = 1;
+        splashes[tab].classList.add('hidden');
+      }, { once:true });
+      loaded[tab] = true;
+    }
+
+    // Boot: load home panel only
+    lazyLoad('home');
+
+    // Prevent accidental horizontal panning
+    let sx = null;
+    document.addEventListener('touchstart', e => { sx = e.touches[0].clientX; }, { passive:true });
+    document.addEventListener('touchmove', e => {
+      if (sx !== null && Math.abs(e.touches[0].clientX - sx) > 8) e.preventDefault();
+    }, { passive:false });
+  </script>
+</body>
+</html>
