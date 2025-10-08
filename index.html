@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <!-- Hard lock to phone width; block pinch-zoom to stop layout jumps -->
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+
+  <title>StockAI</title>
+  <meta name="theme-color" content="#0B0F14" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="StockAI" />
+
+  <!-- Icons -->
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png?v=6" />
+  <link rel="icon" type="image/png" sizes="512x512" href="/icon-512x512.png?v=6" />
+  <link rel="manifest" href="/manifest.json" />
+
+  <style>
+    :root { --bg:#0B0F14; --card:#0F141A; --txt:#e5e7eb; --muted:#9ca3af; --accent:#22c55e; --stroke:#1f2937; }
+    * { box-sizing: border-box; max-width: 100vw !important; }
+    html, body {
+      margin: 0; padding: 0;
+      width: 100vw; height: 100%;
+      background: var(--bg); color: var(--txt);
+      overflow-x: hidden; -webkit-text-size-adjust: 100%;
+    }
+    #app { min-height: 100%; display: flex; flex-direction: column; }
+    header {
+      position: sticky; top: 0; z-index: 5;
+      display: flex; align-items: center; gap: 10px;
+      padding: 12px 14px; background: rgba(11,15,20,.96);
+      border-bottom: 1px solid var(--stroke);
+      backdrop-filter: saturate(140%) blur(6px);
+    }
+    header h1 { margin: 0; font-size: 16px; font-weight: 800; letter-spacing: .2px; }
+    #frame {
+      flex: 1; width: 100% !important; max-width: 100% !important;
+      border: 0; display: block; opacity: 0; transition: opacity .25s ease;
+      height: calc(100vh - 56px); /* fill below header */
+    }
+    /* Loading overlay */
+    #loading {
+      position: fixed; inset: 0; display: flex; align-items: center; justify-content: center;
+      background: linear-gradient(180deg, rgba(11,15,20,.96), rgba(11,15,20,.98));
+      z-index: 4;
+    }
+    .spinner {
+      width: 44px; height: 44px; border-radius: 50%;
+      border: 4px solid #1f2937; border-top-color: var(--accent);
+      animation: spin 1s linear infinite; margin: 0 auto;
+    }
+    .loading-text { margin-top: 10px; color: var(--muted); font-size: 13px; text-align: center; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    /* Safety: media never overflow */
+    img, canvas, video { max-width: 100% !important; height: auto !important; display: block; }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <header><h1>StockAI</h1></header>
+
+    <!-- App iframe (your Space) -->
+    <iframe id="frame" title="StockAI App" allow="clipboard-read; clipboard-write"></iframe>
+
+    <!-- Loading overlay -->
+    <div id="loading" role="status" aria-live="polite">
+      <div>
+        <div class="spinner"></div>
+        <div class="loading-text">Loading…</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Your live Hugging Face Space (change if needed)
+    const SPACE_URL = "https://mkultrasm-stocksai.hf.space/";
+
+    const frame = document.getElementById('frame');
+    const loading = document.getElementById('loading');
+
+    // Lock to portrait when supported (does nothing on older iOS)
+    if (screen.orientation && screen.orientation.lock) {
+      screen.orientation.lock('portrait').catch(()=>{});
+    }
+
+    // Load Space and fade in when ready
+    function load() {
+      frame.src = SPACE_URL;
+    }
+    frame.addEventListener('load', () => {
+      loading.style.display = 'none';
+      frame.style.opacity = 1;
+    });
+
+    // Prevent accidental horizontal panning
+    document.addEventListener('touchmove', (e) => {
+      if (Math.abs(e.touches[0].clientX - (e._sx || (e._sx = e.touches[0].clientX))) > 8) {
+        e.preventDefault();
+      }
+    }, { passive: false });
+
+    load();
+  </script>
+</body>
+</html>
