@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <!-- Lock to phone width, stop pinch zoom layout jumps -->
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+
+  <title>StocksAI</title>
+  <meta name="description" content="Buffett-style intrinsic value, value buys, and clean iOS-grade design." />
+  <meta name="theme-color" content="#0B0F14" />
+
+  <!-- iOS PWA -->
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="StocksAI" />
+
+  <!-- Icons -->
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png?v=7" />
+  <link rel="icon" type="image/png" sizes="512x512" href="/icon-512x512.png?v=7" />
+  <link rel="manifest" href="/manifest.json" />
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root { --bg:#0B0F14; --card:#0F141A; --txt:#e5e7eb; --muted:#9ca3af; --accent:#22c55e; --stroke:#1f2937; }
+    * { box-sizing: border-box; max-width: 100vw !important; }
+    html, body {
+      margin: 0; padding: 0; width: 100vw; height: 100%;
+      background: var(--bg); color: var(--txt);
+      overflow-x: hidden; -webkit-text-size-adjust: 100%;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", Inter, system-ui, Segoe UI, Roboto, Arial, sans-serif;
+    }
+    #app { min-height: 100%; display: flex; flex-direction: column; }
+
+    header {
+      position: sticky; top: 0; z-index: 5;
+      display: flex; align-items: center; justify-content: center;
+      gap: 10px; padding: 12px 14px;
+      background: rgba(11,15,20,.96);
+      border-bottom: 1px solid var(--stroke);
+      backdrop-filter: saturate(140%) blur(6px);
+    }
+    header h1 { margin: 0; font-size: 16px; font-weight: 800; letter-spacing: .2px; }
+
+    /* App Surface: we can embed the HF Space OR run locally.
+       If you’re wrapping the HF Space on Vercel, keep the iframe.
+       If you deploy the Gradio app directly, you don’t need this iframe; delete <main> and serve Gradio. */
+    main { flex: 1; display: flex; }
+    iframe#frame {
+      flex: 1; width: 100% !important; max-width: 100% !important; height: calc(100vh - 56px);
+      border: 0; opacity: 0; transition: opacity .25s ease;
+      background: var(--bg);
+    }
+
+    /* Loading overlay */
+    #loading {
+      position: fixed; inset: 0; display: flex; align-items: center; justify-content: center;
+      background: linear-gradient(180deg, rgba(11,15,20,.96), rgba(11,15,20,.98));
+      z-index: 4;
+    }
+    .spinner {
+      width: 44px; height: 44px; border-radius: 50%;
+      border: 4px solid #1f2937; border-top-color: var(--accent);
+      animation: spin 1s linear infinite; margin: 0 auto;
+    }
+    .loading-text { margin-top: 10px; color: var(--muted); font-size: 13px; text-align: center; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Safety: media never overflow */
+    img, canvas, video { max-width: 100% !important; height: auto !important; display: block; }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <header><h1>StocksAI</h1></header>
+
+    <!-- OPTION A: Wrap your live Hugging Face Space inside Vercel -->
+    <main>
+      <iframe id="frame" title="StocksAI App" allow="clipboard-read; clipboard-write"></iframe>
+    </main>
+
+    <!-- Loading overlay -->
+    <div id="loading" role="status" aria-live="polite">
+      <div>
+        <div class="spinner"></div>
+        <div class="loading-text">Loading…</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 1) If you're wrapping your HF Space, set the URL here:
+    const SPACE_URL = "https://mkultrasm-stocksai.hf.space/";
+
+    // 2) If you serve Gradio directly on Vercel (no iframe), delete everything below
+    //    and deploy your Python backend. (For now we keep the iframe wrapper.)
+    const frame = document.getElementById('frame');
+    const loading = document.getElementById('loading');
+
+    // Portrait preference (ignored if not supported)
+    if (screen.orientation && screen.orientation.lock) {
+      screen.orientation.lock('portrait').catch(()=>{});
+    }
+
+    function load() { frame.src = SPACE_URL; }
+    frame.addEventListener('load', () => { loading.style.display = 'none'; frame.style.opacity = 1; });
+
+    // Prevent accidental horizontal panning
+    let startX = null;
+    document.addEventListener('touchstart', (e) => { startX = e.touches[0].clientX; }, { passive: true });
+    document.addEventListener('touchmove', (e) => {
+      if (startX !== null && Math.abs(e.touches[0].clientX - startX) > 8) e.preventDefault();
+    }, { passive: false });
+
+    load();
+  </script>
+</body>
+</html>
