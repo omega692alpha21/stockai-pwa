@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
   <title>StockAI</title>
   <link rel="manifest" href="/manifest.json">
   <meta name="theme-color" content="#22c55e">
@@ -30,7 +30,7 @@
     #setup { padding:18px; max-width:640px; margin: 0 auto; display:none; }
     label { font-weight:700; font-size:14px; display:block; margin-bottom:6px; }
     input[type=text] {
-      width:100%; padding:12px; font-size:16px; border-radius:10px;
+      width:100%; padding:12px; font-size:17px; border-radius:10px;
       border:1px solid #334155; background:#0F141A; color:var(--txt);
     }
     button.primary {
@@ -62,6 +62,7 @@
 <body>
   <div id="app">
     <header>
+      <img src="https://cdn-icons-png.flaticon.com/512/9480/9480670.png" alt="Logo" style="height:22px;border-radius:4px;">
       <h1>StockAI</h1>
       <button id="gear" type="button" aria-label="Change Space">Change Space</button>
     </header>
@@ -83,9 +84,7 @@
   </div>
 
   <script>
-    // ✅ Permanent default Space URL
     const DEFAULT_SPACE = "https://mkultrasm-stocksai.hf.space/";
-
     const frame = document.getElementById('frame');
     const setup = document.getElementById('setup');
     const gear  = document.getElementById('gear');
@@ -135,7 +134,6 @@
       }
     });
 
-    // Load automatically
     load();
   </script>
 </body>
