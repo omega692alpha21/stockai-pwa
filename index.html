@@ -2,12 +2,97 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#00FF88">
   <title>StocksAI — Buffett-Style Analyzer</title>
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+
+  <!-- PWA Manifest -->
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+
+  <!-- Tailwind (for responsiveness and Apple-like spacing) -->
+  <link
+    href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
+    rel="stylesheet"
+  >
+
+  <style>
+    body {
+      background-color: #0b0f14;
+      color: #e6edf3;
+      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
+      margin: 0;
+      padding: env(safe-area-inset-top) env(safe-area-inset-right)
+               env(safe-area-inset-bottom) env(safe-area-inset-left);
+      -webkit-tap-highlight-color: transparent;
+      overflow-x: hidden;
+    }
+
+    #app {
+      width: 100%;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding-top: 20px;
+    }
+
+    .loading-screen {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      text-align: center;
+      color: #9ba4b0;
+    }
+
+    .loading-dot {
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      background: #00FF88;
+      box-shadow: 0 0 18px #00FF8844;
+      margin-bottom: 12px;
+      animation: pulse 1.4s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); opacity: 0.8; }
+      50% { transform: scale(1.1); opacity: 1; }
+    }
+  </style>
 </head>
-<body class="bg-gray-950 text-gray-100 font-sans">
-  <div id="app"></div>
+
+<body>
+  <!-- Loading placeholder until Gradio loads -->
+  <div id="app">
+    <div class="loading-screen">
+      <div class="loading-dot"></div>
+      <div>Loading <strong>StocksAI</strong>...</div>
+    </div>
+  </div>
+
+  <!-- Gradio host -->
   <script src="https://gradio.s3-us-west-2.amazonaws.com/3.30.0/gradio.js"></script>
+  <script>
+    window.addEventListener('DOMContentLoaded', () => {
+      // Your Gradio app URL (update if deployed elsewhere)
+      const HF_URL = "https://mkultrasm-stocksai.hf.space";
+      const appDiv = document.getElementById('app');
+      const iframe = document.createElement('iframe');
+      iframe.src = HF_URL;
+      iframe.style.border = 'none';
+      iframe.style.width = '100%';
+      iframe.style.height = '100vh';
+      iframe.style.maxWidth = '480px';
+      iframe.style.margin = '0 auto';
+      iframe.style.display = 'block';
+      iframe.style.borderRadius = '0';
+      iframe.style.overflow = 'hidden';
+      appDiv.innerHTML = '';
+      appDiv.appendChild(iframe);
+    });
+  </script>
 </body>
 </html>
