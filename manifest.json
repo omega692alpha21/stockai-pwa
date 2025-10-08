@@ -1,0 +1,13 @@
+{
+  "name": "StocksAI",
+  "short_name": "StocksAI",
+  "description": "Buffett-style intrinsic value with an Apple-grade interface.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0A0E13",
+  "theme_color": "#0A0E13",
+  "icons": [
+    { "src": "/icon-512x512.png?v=8", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" },
+    { "src": "/apple-touch-icon.png?v=8", "sizes": "180x180", "type": "image/png" }
+  ]
+}
