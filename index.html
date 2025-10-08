@@ -42,7 +42,6 @@
 
     #frame { flex:1; border:0; width:100%; opacity:0; transition:opacity .25s ease; }
 
-    /* Loading overlay */
     #loading {
       position:fixed; inset:0; display:flex; align-items:center; justify-content:center;
       background:linear-gradient(180deg, rgba(11,15,20,.95), rgba(11,15,20,.98));
@@ -69,7 +68,7 @@
 
     <div id="setup">
       <label>Paste your Hugging Face Space URL</label>
-      <input id="spaceUrl" type="text" placeholder="https://huggingface.co/spaces/Mkultrasm/StocksAI">
+      <input id="spaceUrl" type="text" placeholder="https://mkultrasm-stocksai.hf.space/">
       <button id="saveBtn" class="primary" type="button">Save</button>
       <div class="hint">Tip: You can change this anytime via “Change Space”. The app loads your Space full-screen.</div>
     </div>
@@ -84,8 +83,8 @@
   </div>
 
   <script>
-    // Your default Space (set to your link)
-    const DEFAULT_SPACE = "https://huggingface.co/spaces/Mkultrasm/StocksAI?__theme=dark";
+    // ✅ Permanent default Space URL
+    const DEFAULT_SPACE = "https://mkultrasm-stocksai.hf.space/";
 
     const frame = document.getElementById('frame');
     const setup = document.getElementById('setup');
@@ -98,8 +97,6 @@
       if (!url) return null;
       url = url.trim();
       if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
-      if (!/\\?/.test(url)) url += '?__theme=dark';
-      else if (!/__theme=dark/.test(url)) url += '&__theme=dark';
       return url;
     }
 
@@ -119,13 +116,11 @@
       frame.src = saved;
     }
 
-    // Make sure the loader hides once the iframe finishes
     frame.addEventListener('load', () => {
       loading.style.display = 'none';
       frame.style.opacity = 1;
     });
 
-    // Robust handlers for iOS taps
     gear.addEventListener('click', () => showSetup());
     gear.addEventListener('touchend', (e) => { e.preventDefault(); showSetup(); });
 
@@ -140,17 +135,7 @@
       }
     });
 
-    // Support ?space= override in the URL
-    try {
-      const params = new URLSearchParams(location.search);
-      const qp = params.get('space');
-      if (qp) {
-        const v = normalize(qp);
-        if (v) localStorage.setItem('spaceUrl', v);
-      }
-    } catch(e) {}
-
-    // First load
+    // Load automatically
     load();
   </script>
 </body>
